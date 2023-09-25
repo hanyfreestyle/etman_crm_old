@@ -376,8 +376,10 @@ function Print_Close_Panel($Footer='',$Arr=''){
 function PrintFildInformation($Size,$Titel,$Info){
     echo '<div class="'.$Size.' col-sm-12 col-xs-12 DirRight CustInfo">';
     echo '<div class="Name">'.$Titel.'</div>';
-    echo '<div class="Info">'.nl2br($Info).'</div>';
-    echo '</div>';    
+    if (isset($Info)){
+        echo '<div class="Info">'.nl2br($Info).'</div>';
+    }
+    echo '</div>';
 } 
 function RowCountClear($RowCount,$Count='4'){
    $RowCount = $RowCount+1;

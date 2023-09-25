@@ -119,7 +119,7 @@ function findValue_FromArr($OldData,$Key,$Val,$SendName){
 */
 
 function findValue_FromArr($OldData,$Key,$Val,$SendName){
-    if(count($OldData) > 0 and intval($Val)> '0' ){
+    if(  count((array)$OldData) > 0 and intval($Val)> '0' ){
         $hany = findValue($OldData, array($Key => $Val ), "0");
         if(!empty($hany)){
             $SendVall = $hany['0'][$SendName];
@@ -164,7 +164,8 @@ function replace_key($find, $replace, $array) {
 ###################################################   assc_array_count_values
 #################################################################################################################################
 function assc_array_count_values( $array, $key ) {
-     foreach( $array as $row ) {
+    $new_array = [];
+    foreach( $array as $row ) {
           $new_array[] = $row[$key];
      }
      return array_count_values( $new_array );
