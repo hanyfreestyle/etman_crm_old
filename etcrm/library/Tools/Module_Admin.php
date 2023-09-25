@@ -288,6 +288,7 @@ function ErrMassPer($State=""){
 ###################################################   RowCountForLight_New
 #################################################################################################################################
 function RowCountForLight_New($RowCount,$ClearAfter="4"){
+    $RowCount = intval($RowCount);
     $RowCount = $RowCount+1;
     if($RowCount == $ClearAfter){
         echo '<div style="clear: both!important;"></div>';

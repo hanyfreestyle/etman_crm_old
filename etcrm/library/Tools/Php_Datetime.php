@@ -239,7 +239,7 @@ function getTime($timestamp) {
 #################################################################################################################################
 ###################################################   GetARDate
 #################################################################################################################################
-function GetARDate($SetLabel = "",$timestamp) {
+function GetARDate($SetLabel = "",$timestamp=null) {
    $nameday = date("l",$timestamp);
    $day = date("d",$timestamp);
    $namemonth = date("m",$timestamp);
@@ -310,7 +310,7 @@ function GetARDate($SetLabel = "",$timestamp) {
 #################################################################################################################################
 ###################################################   GetARDate2
 #################################################################################################################################
-function GetARDate2($SetLabel = "",$timestamp) {
+function GetARDate2($SetLabel = "",$timestamp=null) {
    $nameday = date("l",$timestamp);
    $day = date("d",$timestamp);
    $namemonth = date("m",$timestamp);

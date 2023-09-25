@@ -54,6 +54,7 @@ class DB {
 	* @var	string
 	*/
 	public $pager;
+    public $pager_Home;
 	/**
 	* current link with our database
 	* @var	object
@@ -219,32 +220,64 @@ class DB {
    * @param integer $pages - if you choose PAGING_NEXT_PREV_NUM in $mode you may need to specify the number of pages to show before and after the current page
    * @return Array
    */
-  
-function SelArr($sql, $pager=false, $perpage=10, $mode=4, $uri='', $pages=5) {
-  
-  if($pager == true) {
-  if(isset($_GET['page'])){
-  $current = $this->IntValue($_GET['page']);
-  $from=($perpage*$current)-$perpage;
-  }else{
-      $from = "0";
-  }
+#################################################################################################################################
+###################################################    SelArr
+#################################################################################################################################  
+    function SelArr($sql, $pager=false, $perpage=10, $mode=4, $uri='', $pages=5) {
 
-   $result = $this->Query($sql);
-   $this->pager = $this->Paging($perpage,$this->ResultNumRows($result),$mode,$pages,$uri);
-   $sql .= " LIMIT $from, $perpage";
-  }
+        if($pager == true) {
+            if(isset($_GET['page'])){
+                $current = $this->IntValue($_GET['page']);
+                $from=($perpage*$current)-$perpage;
+            }else{
+                $from = "0";
+            }
 
-  $result = $this->Query($sql);
-  if ($result) {
-  if ($this->ResultNumRows($result) == EMPTY_RESULT)
-  return EMPTY_RESULT;
-   while ($row = mysqli_fetch_assoc($result)) {
-          $rs[] = $row;
-         }
-   return $rs;
-  }
-}
+            $result = $this->Query($sql);
+            $this->pager = $this->Paging($perpage,$this->ResultNumRows($result),$mode,$pages,$uri);
+            $sql .= " LIMIT $from, $perpage";
+        }
+
+        $result = $this->Query($sql);
+        if ($result) {
+            if ($this->ResultNumRows($result) == EMPTY_RESULT)
+                return EMPTY_RESULT;
+            while ($row = mysqli_fetch_assoc($result)) {
+                $rs[] = $row;
+            }
+            return $rs;
+        }
+    }
+
+#################################################################################################################################
+###################################################    SelArr_Home
+#################################################################################################################################  
+    function SelArr_Home($sql, $pager=false, $perpage=10, $mode=4, $uri='', $pages=5) {
+
+        if($pager == true) {
+            if(isset($_GET['page'])){
+                $current = $this->IntValue($_GET['page']);
+                $from=($perpage*$current)-$perpage;
+            }else{
+                $from = "0";
+            }
+
+            $result = $this->Query($sql);
+            $this->pager = $this->Paging_Home($perpage,$this->ResultNumRows($result),$mode,$pages,$uri);
+            $sql .= " LIMIT $from, $perpage";
+        }
+
+        $result = $this->Query($sql);
+        if ($result) {
+            if ($this->ResultNumRows($result) == EMPTY_RESULT)
+                return EMPTY_RESULT;
+            while ($row = mysqli_fetch_assoc($result)) {
+                $rs[] = $row;
+            }
+            return $rs;
+        }
+    }
+
 
 function H_SelArrOnlyRow($sql, $pager=false, $perpage=10, $mode=4, $uri='', $pages=5) {
   if($pager == true) {
@@ -458,201 +491,368 @@ function SelArr_Old($sql, $pager=false, $perpage=10, $mode=4, $uri='', $pages=5)
    * @return string
    */
 
-
-
- private function Paging($perpage=10,$count,$mode=4,$pages=10,$uri='',$nxtbtn='التالى',$prevbtn='السابق',$lstbtn='الصفحة الاخيرة',$frstbrn='الصفحة الاولى') {
-  global $WebSiteLang ;
-  $current= "";
-  $pager="";
-  $link1="";
-  
-  if($WebSiteLang == 'En' or ADMIN_WEB_LANG == 'En'){
-   $nxtbtn = 'Next';
-   $prevbtn = 'First page';
-   $lstbtn ='Last Page';
-   $frstbrn ='Previous'; 
-  }
-  
-  if(!empty($_GET['page'])) {
-   $current = $this->IntValue($_GET['page']);
-  }
-  if(is_array($uri)) {
-   $link = $uri[0];
-   $link1 = $uri[1];
-  }elseif($uri != '') {
-   $link = "?".$uri."&page=";
-  } else {
-   $link = "?page=";
-  }
-  $totalpages = ceil($count/$perpage);
-  if($current > $totalpages) {
-   $current = 1;
-  }
-  switch ($mode) {
-   case PAGING_NEXT_PREV_NUM:
-    $pager .= '<div id="paging">';
-    if(($current == 0) || ($current == 1)) {
-     $current = 1;
-     if(($totalpages - $pages) <= 0){
-      $myloop = $totalpages;
-      $havelast = true;
-     } else {
-      $myloop = $pages;
-     }
-     for($i=1;$i<=$myloop;$i++) {
-      if($i==$current) {
-       $pager .= '<div class="pager-current">'.$i.'</div>';
-      } else {
-       $pager .= '<div class="pager-link"><a href="'.$link.$i.$link1.'" class="nav_links">'.$i.'</a></div>';
-      }
-     }
-     if($totalpages > 1) {
-      $pager .= '<div class="pager-np"><a href="'.$link.($current+1).$link1.'" class="nav_links">'.$nxtbtn.'</a></div>';
-     }
-    if($totalpages > $pages) {
-      $pager .= '<div class="pager-fl"><a href="'.$link.$totalpages.$link1.'" class="nav_links">'.$lstbtn.'</a></div>';
-     }
-    } else {
-     if(($current - ($pages +1) > 0)) {
-      $pager .= '<div class="pager-fl"><a href="'.$link.'1'.$link1.'" class="nav_links">'.$frstbrn.'</a></div>';
-     }
-     $pager .= '<div class="pager-np"><a href="'.$link.($current-1).$link1.'" class="nav_links">'.$prevbtn.'</a></div>';
-     if(($current - $pages) > 0) {
-      for($i=($current - $pages);$i<=$current;$i++) {
-       if($i==$current) {
-        $pager .= '<div class="pager-current">'.$i.'</div>';
-       } else {
-        $pager .= '<div class="pager-link"><a href="'.$link.$i.$link1.'" class="nav_links">'.$i.'</a></div>';
-       }
-      }
-     } else {
-      for($i=1;$i<=$current;$i++) {
-       if($i==$current) {
-        $pager .= '<div class="pager-current">'.$i.'</div>';
-       } else {
-        $pager .= '<div class="pager-link"><a href="'.$link.$i.$link1.'" class="nav_links">'.$i.'</a></div>';
-       }
-      }
-     }
-     if((($totalpages - $current) > 0) && (($totalpages - $current) <= $pages)) {
-      for($i=$current+1;$i<=$totalpages;$i++) {
-       if($i==$current) {
-        $pager .= '<div class="pager-current">'.$i.'</div>';
-       } else {
-        $pager .= '<div class="pager-link"><a href="'.$link.$i.$link1.'" class="nav_links">'.$i.'</a></div>';
-       }
-      }
-     } elseif(($totalpages - $current) > $pages) {
-      for($i=$current+1;$i<=($current+$pages);$i++) {
-       if($i==$current) {
-        $pager .= '<div class="pager-current">'.$i.'</div>';
-       } else {
-        $pager .= '<div class="pager-link"><a href="'.$link.$i.$link1.'" class="nav_links">'.$i.'</a></div>';
-       }
-      }
-     }
-     if($current < $totalpages) {
-      $pager .= '<div class="pager-np"><a href="'.$link.($current+1).$link1.'" class="nav_links">'.$nxtbtn.'</a></div>';
-     }
-     if($totalpages > ($pages+$current)) {
-       $pager .= '<div class="pager-fl"><a href="'.$link.$totalpages.$link1.'" class="nav_links">'.$lstbtn.'</a></div>';
-     }
+#################################################################################################################################
+###################################################    Paging
+#################################################################################################################################
+    private function Paging($perpage=10,$count=null,$mode=4,$pages=10,$uri='',$nxtbtn='التالى',$prevbtn='السابق',$lstbtn='الصفحة الاخيرة',$frstbrn='الصفحة الاولى') {
+        global $WebSiteLang ;
+        $current= "";
+        $pager="";
+        $link1="";
+/*
+        if($WebSiteLang == 'En' or ADMIN_WEB_LANG == 'En'){
+            $nxtbtn = 'Next';
+            $prevbtn = 'First page';
+            $lstbtn ='Last Page';
+            $frstbrn ='Previous';
+        }
+*/
+        if(!empty($_GET['page'])) {
+            $current = $this->IntValue($_GET['page']);
+        }
+        if(is_array($uri)) {
+            $link = $uri[0];
+            $link1 = $uri[1];
+        }elseif($uri != '') {
+            $link = "?".$uri."&page=";
+        } else {
+            $link = "?page=";
+        }
+        $totalpages = ceil($count/$perpage);
+        if($current > $totalpages) {
+            $current = 1;
+        }
+        $current = intval($current);
+        switch ($mode) {
+            case PAGING_NEXT_PREV_NUM:
+                $pager .= '<div id="paging">';
+                if(($current == 0) || ($current == 1)) {
+                    $current = 1;
+                    if(($totalpages - $pages) <= 0){
+                        $myloop = $totalpages;
+                        $havelast = true;
+                    } else {
+                        $myloop = $pages;
+                    }
+                    for($i=1;$i<=$myloop;$i++) {
+                        if($i==$current) {
+                            $pager .= '<div class="pager-current">'.$i.'</div>';
+                        } else {
+                            $pager .= '<div class="pager-link"><a href="'.$link.$i.$link1.'" class="nav_links">'.$i.'</a></div>';
+                        }
+                    }
+                    if($totalpages > 1) {
+                        $pager .= '<div class="pager-np"><a href="'.$link.($current+1).$link1.'" class="nav_links">'.$nxtbtn.'</a></div>';
+                    }
+                    if($totalpages > $pages) {
+                        $pager .= '<div class="pager-fl"><a href="'.$link.$totalpages.$link1.'" class="nav_links">'.$lstbtn.'</a></div>';
+                    }
+                } else {
+                    if(($current - ($pages +1) > 0)) {
+                        $pager .= '<div class="pager-fl"><a href="'.$link.'1'.$link1.'" class="nav_links">'.$frstbrn.'</a></div>';
+                    }
+                    $pager .= '<div class="pager-np"><a href="'.$link.($current-1).$link1.'" class="nav_links">'.$prevbtn.'</a></div>';
+                    if(($current - $pages) > 0) {
+                        for($i=($current - $pages);$i<=$current;$i++) {
+                            if($i==$current) {
+                                $pager .= '<div class="pager-current">'.$i.'</div>';
+                            } else {
+                                $pager .= '<div class="pager-link"><a href="'.$link.$i.$link1.'" class="nav_links">'.$i.'</a></div>';
+                            }
+                        }
+                    } else {
+                        for($i=1;$i<=$current;$i++) {
+                            if($i==$current) {
+                                $pager .= '<div class="pager-current">'.$i.'</div>';
+                            } else {
+                                $pager .= '<div class="pager-link"><a href="'.$link.$i.$link1.'" class="nav_links">'.$i.'</a></div>';
+                            }
+                        }
+                    }
+                    if((($totalpages - $current) > 0) && (($totalpages - $current) <= $pages)) {
+                        for($i=$current+1;$i<=$totalpages;$i++) {
+                            if($i==$current) {
+                                $pager .= '<div class="pager-current">'.$i.'</div>';
+                            } else {
+                                $pager .= '<div class="pager-link"><a href="'.$link.$i.$link1.'" class="nav_links">'.$i.'</a></div>';
+                            }
+                        }
+                    } elseif(($totalpages - $current) > $pages) {
+                        for($i=$current+1;$i<=($current+$pages);$i++) {
+                            if($i==$current) {
+                                $pager .= '<div class="pager-current">'.$i.'</div>';
+                            } else {
+                                $pager .= '<div class="pager-link"><a href="'.$link.$i.$link1.'" class="nav_links">'.$i.'</a></div>';
+                            }
+                        }
+                    }
+                    if($current < $totalpages) {
+                        $pager .= '<div class="pager-np"><a href="'.$link.($current+1).$link1.'" class="nav_links">'.$nxtbtn.'</a></div>';
+                    }
+                    if($totalpages > ($pages+$current)) {
+                        $pager .= '<div class="pager-fl"><a href="'.$link.$totalpages.$link1.'" class="nav_links">'.$lstbtn.'</a></div>';
+                    }
+                }
+                break;
+            case PAGING_NEXT_PREV_ONLY:
+                if($current > 1) {
+                    $pager .= '<div class="pager-np"><a href="'.$link.($current-1).$link1.'">'.$prevbtn.'</a></div>';
+                } else {
+                    $pager .= '<div class="pager-np">'.$prevbtn.'</div>';
+                }
+                if(($totalpages - $current) > 0) {
+                    $pager .='<div class="pager-np"><a href="'.$link.($current+1).$link1.'">'.$nxtbtn.'</a></div>';
+                } else {
+                    $pager .= '<div class="pager-np">'.$nxtbtn.'</div>';
+                }
+                break;
+        }
+        $pager .= '</div>';
+        $this->pager = $pager;
+        return $pager;
     }
-    break;
-   case PAGING_NEXT_PREV_ONLY:
-    if($current > 1) {
-     $pager .= '<div class="pager-np"><a href="'.$link.($current-1).$link1.'">'.$prevbtn.'</a></div>';
-    } else {
-     $pager .= '<div class="pager-np">'.$prevbtn.'</div>';
+
+
+
+
+#################################################################################################################################
+###################################################    Paging_Home
+#################################################################################################################################
+ 
+
+    private function Paging_Home($perpage=10,$count=null,$mode=4,$pages=10,$uri='',$nxtbtn='التالى',$prevbtn='السابق',$lstbtn='الصفحة الاخيرة',$frstbrn='الصفحة الاولى') {
+        global $WebSiteLang ;
+        $current= "";
+        $pager_Home="";
+        $link1="";
+       # echo "hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh".$WebSiteLang;
+        
+        if($WebSiteLang == "Ar"){
+            
+        }elseif($WebSiteLang == "En"){
+            
+        }
+     
+      
+/*
+        if($WebSiteLang == 'En' or ADMIN_WEB_LANG == 'En'){
+            $nxtbtn = 'Next';
+            $prevbtn = 
+            $lstbtn = 'First page';
+            $frstbrn ='Previous';
+        }
+*/
+        if(!empty($_GET['page'])) {
+            $current = $this->IntValue($_GET['page']);
+        }
+        if(is_array($uri)) {
+            $link = $uri[0];
+            $link1 = $uri[1];
+        }elseif($uri != '') {
+            $link = "?".$uri."&page=";
+        } else {
+            $link = "?page=";
+        }
+        $totalpages = ceil($count/$perpage);
+        if($current > $totalpages) {
+            $current = 1;
+        }
+
+        $current =intval($current);
+        switch ($mode) {
+            case PAGING_NEXT_PREV_NUM:
+                $pager_Home .= '<ul class="pagination Pagination_Dir float-left">';
+                if(($current == 0) || ($current == 1)) {
+                    $current = 1;
+                    if(($totalpages - $pages) <= 0){
+                        $myloop = $totalpages;
+                        $havelast = true;
+                    } else {
+                        $myloop = $pages;
+                    }
+                    for($i=1;$i<=$myloop;$i++) {
+                        if($i==$current) {
+                            $pager_Home .= '<li class="page-item active"><a class="page-link" href="#">'.$i.'</a></li>';
+                        } else {
+                            $pager_Home .= '<li class="page-item"><a class="page-link" href="'.$link.$i.$link1.'">'.$i.'</a></li>';
+                        }
+                    }
+                    if($totalpages > 1) {
+                        $pager_Home .='<li class="page-item"><a class="page-link" href="'.$link.($current+1).$link1.'"><i class="fas fa-angle-right"></i></a></li>';
+                    }
+                    if($totalpages > $pages) {
+                       $pager_Home .= '<li class="page-item"><a class="page-link" href="'.$link.$totalpages.$link1.'"><i class="fas fa-angle-double-right"></i></a></li>';
+                    }
+                } else {
+                
+                    if(($current - ($pages +1) > 0)) {
+                         $pager_Home .= '<li class="page-item"><a class="page-link" href="'.$link.'1'.$link1.'"><i class="fas fa-angle-double-left"></i></a></li>';
+                    }
+          
+                    $pager_Home .= '<li class="page-item"><a class="page-link" href="'.$link.($current-1).$link1.'"><i class="fas fa-angle-left"></i></a></li>';
+                     
+                    if(($current - $pages) > 0) {
+                        for($i=($current - $pages);$i<=$current;$i++) {
+                            if($i==$current) {
+                                $pager_Home .= '<li class="page-item active"><a class="page-link" href="#">'.$i.'</a></li>';
+                            } else {
+                                
+                               $pager_Home .= '<li class="page-item"><a class="page-link" href="'.$link.$i.$link1.'">'.$i.'</a></li>';
+                            }
+                        }
+                    } else {
+                        for($i=1;$i<=$current;$i++) {
+                            if($i==$current) {
+                                $pager_Home .= '<li class="page-item active"><a class="page-link" href="#">'.$i.'</a></li>';
+                            } else {
+                                $pager_Home .= '<li class="page-item"><a class="page-link" href="'.$link.$i.$link1.'">'.$i.'</a></li>';
+                            }
+                        }
+                    }
+                    if((($totalpages - $current) > 0) && (($totalpages - $current) <= $pages)) {
+                        for($i=$current+1;$i<=$totalpages;$i++) {
+                            if($i==$current) {
+                                 $pager_Home .= '<div class="pager-current">'.$i.'</div>';
+                                 
+                            } else {
+                                $pager_Home .= '<li class="page-item"><a class="page-link" href="'.$link.$i.$link1.'">'.$i.'</a></li>';
+                            }
+                        }
+                    } elseif(($totalpages - $current) > $pages) {
+                        for($i=$current+1;$i<=($current+$pages);$i++) {
+                            if($i==$current) {
+                                 $pager_Home .= '<div class="pager-current">'.$i.'</div>';
+                                 
+                            } else {
+                                $pager_Home .= '<li class="page-item"><a class="page-link" href="'.$link.$i.$link1.'">'.$i.'</a></li>';
+                               
+                            }
+                        }
+                    }
+                    if($current < $totalpages) {
+                       $pager_Home .= '<li class="page-item"><a class="page-link" href="'.$link.($current+1).$link1.'"><i class="fas fa-angle-right"></i></a></li>';
+                    }
+                    if($totalpages > ($pages+$current)) {
+                       $pager_Home .= '<li class="page-item"><a class="page-link" href="'.$link.$totalpages.$link1.'"><i class="fas fa-angle-double-right"></i></a></li>';
+                    }
+                    
+                }
+                break;
+            case PAGING_NEXT_PREV_ONLY:
+                if($current > 1) {
+                    $pager_Home .= '<div class="pager-np"><a href="'.$link.($current-1).$link1.'">'.$prevbtn.'</a></div>';
+                } else {
+                    $pager_Home .= '<div class="pager-np">'.$prevbtn.'</div>';
+                }
+                if(($totalpages - $current) > 0) {
+                     $pager_Home .='<div class="pager-np"><a href="'.$link.($current+1).$link1.'">'.$nxtbtn.'</a></div>';
+                } else {
+                    $pager_Home .= '<div class="pager-np">'.$nxtbtn.'</div>';
+                }
+                break;
+        }
+        $pager_Home .= '</ul>';
+        $this->pager_Home = $pager_Home;
+        return $pager_Home;
     }
-    if(($totalpages - $current) > 0) {
-     $pager .='<div class="pager-np"><a href="'.$link.($current+1).$link1.'">'.$nxtbtn.'</a></div>';
-    } else {
-     $pager .= '<div class="pager-np">'.$nxtbtn.'</div>';
+ 
+
+
+#################################################################################################################################
+###################################################    
+#################################################################################################################################
+    function H_SelectOneRow($sql) {
+        $res = $this->Query($sql);
+        $rs = mysqli_fetch_assoc($res);
+        return $rs;
     }
-    break;
-  }
-  $pager .= '</div>';
-  $this->pager = $pager;
-  return $pager;
- } 
 
+#################################################################################################################################
+###################################################    
+#################################################################################################################################
+    function H_CheckTheGet($GetValue,$FiledName,$TabelName,$SelType="1",$Mass1 = "Error",$Mass2 = "Error") {
 
+        if(!isset($_GET[$GetValue])) {
+            redirect_to2("index.php",$Mass1);
+        } else {
+            $GOODGetValue = $_GET[$GetValue];
+        }
 
+        if(!is_numeric($_GET[$GetValue])) {
+            redirect_to2("index.php",$Mass1);
+            exit;
+        }else{
+            $GOODGetValue = intval($_GET[$GetValue]);
+        }
 
-function H_SelectOneRow($sql) {
-$res = $this->Query($sql);
-$rs = mysqli_fetch_assoc($res);       
-return $rs;
-}
-    
+        $SQLLine = "SELECT '$FiledName' FROM $TabelName WHERE $FiledName = $GOODGetValue" ;
 
-function H_CheckTheGet($GetValue,$FiledName,$TabelName,$SelType="1",$Mass1 = "Error",$Mass2 = "Error") {
+        $already = mysqli_num_rows(mysqli_query($this->link, $SQLLine ));
+        if($already <= 0) {
+            redirect_to2("index.php",$Mass2);
+        } else {
 
-   if(!isset($_GET[$GetValue])) {
-      redirect_to2("index.php",$Mass1);
-   } else {
-     $GOODGetValue = $_GET[$GetValue];
-   }
- 
-   if(!is_numeric($_GET[$GetValue])) {
-     redirect_to2("index.php",$Mass1);
-     exit;
-   }else{
-   $GOODGetValue = intval($_GET[$GetValue]); 
-   }  
-   
-   $SQLLine = "SELECT '$FiledName' FROM $TabelName WHERE $FiledName = $GOODGetValue" ;
-   
-   $already = mysqli_num_rows(mysqli_query($this->link, $SQLLine ));
-   if($already <= 0) {
-   redirect_to2("index.php",$Mass2); 
-   } else {
+            if($SelType == '1'){
 
-   if($SelType == '1'){
+                return $GOODGetValue;
 
-   return $GOODGetValue;
-    
-   }elseif($SelType == '2'){
-   $SQLLine = "SELECT * FROM $TabelName WHERE $FiledName = $GOODGetValue" ;
-   $sendRow =  $this->H_SelectOneRow($SQLLine);
-   return $sendRow ;
-   }
-   
-  }
-}
- 
-function H_Total_Count($SQLLine){
- $already = mysqli_num_rows(mysqli_query($this->link, $SQLLine ));
- return $already ;  
-} 
+            }elseif($SelType == '2'){
+                $SQLLine = "SELECT * FROM $TabelName WHERE $FiledName = $GOODGetValue" ;
+                $sendRow =  $this->H_SelectOneRow($SQLLine);
+                return $sendRow ;
+            }
 
-function H_DELETE_Filte_With_Filde($Tabel,$Filde,$ID){
- $sql = "DELETE FROM $Tabel WHERE $Filde = '$ID' ";
- $res = $this->Query($sql);
-}
- 
-function H_DELETE_FromId($Tabel,$ID){
- $sql = "DELETE FROM $Tabel WHERE id ='$ID'";
- $res = $this->Query($sql);
-}  
- 
-function H_DELETE($SQL_LINE){
- $res = $this->Query($SQL_LINE);
-}  
+        }
+    }
+#################################################################################################################################
+###################################################
+#################################################################################################################################
+    function H_Total_Count($SQLLine){
+        $already = mysqli_num_rows(mysqli_query($this->link, $SQLLine ));
+        return $already ;
+    }
+#################################################################################################################################
+###################################################
+#################################################################################################################################
+    function H_DELETE_Filte_With_Filde($Tabel,$Filde,$ID){
+        $sql = "DELETE FROM $Tabel WHERE $Filde = '$ID' ";
+        $res = $this->Query($sql);
+    }
+#################################################################################################################################
+###################################################
+#################################################################################################################################
+    function H_DELETE_FromId($Tabel,$ID){
+        $sql = "DELETE FROM $Tabel WHERE id ='$ID'";
+        $res = $this->Query($sql);
+    }
+#################################################################################################################################
+###################################################
+#################################################################################################################################
+    function H_DELETE($SQL_LINE){
+        $res = $this->Query($SQL_LINE);
+    }
+#################################################################################################################################
+###################################################
+#################################################################################################################################
+    function H_EmptyTabel($Tabel){
+        $sql = "TRUNCATE TABLE $Tabel " ;
+        $res = $this->Query($sql);
+    }
+#################################################################################################################################
+###################################################
+#################################################################################################################################
+    function H_EmptyTabel_DROP($Tabel){
+        $sql = "DROP TABLE $Tabel " ;
+        $res = $this->Query($sql);
+    }
+#################################################################################################################################
+###################################################
+#################################################################################################################################
+    function H_Filde_DROP($Tabel,$Filde){
+        $sql = "ALTER TABLE $Tabel DROP COLUMN $Filde";
+        $res = $this->Query($sql);
+    }
 
-function H_EmptyTabel($Tabel){
- $sql = "TRUNCATE TABLE $Tabel " ;
- $res = $this->Query($sql);
-} 
-
-function H_EmptyTabel_DROP($Tabel){
- $sql = "DROP TABLE $Tabel " ;
- $res = $this->Query($sql);
-} 
-
-
- 
 }
 
 ?>

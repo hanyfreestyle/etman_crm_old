@@ -4,25 +4,40 @@ if(!defined('WEB_ROOT')) {	exit;}
 #################################################################################################################################
 ###################################################   Form_Open
 #################################################################################################################################
-function Form_Open($Arr=array()){
-    if ( !isset($Arr['FormId'])){
-        $Arr['FormId'] = 'forms';
-    }
-    if (!isset($Arr['FormPost'])){
-        $Arr['FormPost'] = 'POST';
-    }
-    if (!isset($Arr['FormClass'])){
-        $Arr['FormClass'] = 'form';
-    }
-    if (!isset($Arr['FormClassConfig'])){
-        $Arr['FormClassConfig'] = 'form_config';
-    }
-    if (!isset($Arr['FormName'])){
-        $Arr['FormName'] = 'FormName';
-    }
-    echo '<div id="'.$Arr['FormId'].'" >';
+//function Form_Open($Arr=array()){
+//    if ( !isset($Arr['FormId'])){
+//        $Arr['FormId'] = 'forms';
+//    }
+//    if (!isset($Arr['FormPost'])){
+//        $Arr['FormPost'] = 'POST';
+//    }
+//    if (!isset($Arr['FormClass'])){
+//        $Arr['FormClass'] = 'form';
+//    }
+//    if (!isset($Arr['FormClassConfig'])){
+//        $Arr['FormClassConfig'] = 'form_config';
+//    }
+//    if (!isset($Arr['FormName'])){
+//        $Arr['FormName'] = 'FormName';
+//    }
+//    echo '<div id="'.$Arr['FormId'].'" >';
+//    echo '<div id="ErrMass" class="ErrMass_Div"></div>';
+//    echo '<form class="'.$Arr['FormClass']. " ".$Arr['FormClassConfig'].'" method="'.$Arr['FormPost'].'" name="'.$Arr['FormName'].'"  id="validate-form" data-parsley-validate enctype="multipart/form-data">';
+//}
+
+function Form_Open($SendArr=array()){
+    $FormDiveId = ArrIsset($SendArr,"FormDiveId","forms");
+    $FormMethod = ArrIsset($SendArr,"FormMethod","POST");
+    $FormClass = ArrIsset($SendArr,"FormClass","form");
+    $FormClassConfig = ArrIsset($SendArr,"FormClassConfig","form_config");
+    $FormName = ArrIsset($SendArr,"FormName","FormName");
+    $Enctype  = ArrIsset($SendArr,"Enctype",'enctype="multipart/form-data"');
+    $ParsleyState = ArrIsset($SendArr,"ParsleyState",'data-parsley-validate');
+    $ParsleyId = ArrIsset($SendArr,"ParsleyId",'validate-form');
+
+    echo '<div id="'.$FormDiveId.'" >';
     echo '<div id="ErrMass" class="ErrMass_Div"></div>';
-    echo '<form class="'.$Arr['FormClass']. " ".$Arr['FormClassConfig'].'" method="'.$Arr['FormPost'].'" name="'.$Arr['FormName'].'"  id="validate-form" data-parsley-validate enctype="multipart/form-data">';
+    echo '<form class="'.$FormClass. " ".$FormClassConfig.'" method="'.$FormMethod.'" name="'.$FormName.'"  id="'.$ParsleyId.'" '.$ParsleyState." ".$Enctype.' >';
 }
 
 #################################################################################################################################
@@ -49,7 +64,7 @@ function Form_Close($state="1",$Arr=array()){
 #################################################################################################################################
 ###################################################   Form_Close_New
 #################################################################################################################################
-function Form_Close_New($state="1",$CanceledUrl){
+function Form_Close_New($state="1",$CanceledUrl=null){
     global $AdminLangFile;
     if($state == '1'){
         $B_name = $AdminLangFile['mainform_add_but'];
@@ -286,10 +301,16 @@ function hetsee_2($filedname) {
 
 function hetseeEdit_2($filedname,$Name) {
     global $row;
+
     if(isset($_POST[$filedname])) {
         $v = $_POST[$filedname];
     } else {
-        $v = $row[$Name];
+        if(isset($row[$Name])){
+            $v = $row[$Name];
+        }else{
+            $v = "";
+        }
+
     }
     return $v;
 }
@@ -332,7 +353,7 @@ function hetseeEdit_2019($filedname,$Name) {
 #################################################################################################################################
 ###################################################   Form_Close_3
 #################################################################################################################################
-function Form_Close_3($state="1",$But_Name){
+function Form_Close_3($state="1",$But_Name=null){
     global $AdminLangFile;
     if($state == '1'){
         $B_name = $AdminLangFile['mainform_add_but'];
@@ -464,7 +485,7 @@ function UnsetAllSession_Dell(){
      exit;
    }
  }
- function Redirect_to2($location = NULL,$mass) {
+ function Redirect_to2($location = NULL,$mass=null) {
    if($location != NULL) {
      echo '<script type="text/javascript">';
      echo 'alert("'.$mass.'")';
@@ -629,7 +650,7 @@ function Vall($Err,$DoFunction,$db,$state,$GroupPermation = "") {
 #################################################################################################################################
 ###################################################   VallCat
 #################################################################################################################################
-function VallCat($Err,$DoFunction,$db,$state,$GroupPermation = "",$catTabel,$Path,$ConfigP,$PathD = "") {
+function VallCat($Err,$DoFunction,$db,$state,$GroupPermation = "",$catTabel=null,$Path=null,$ConfigP=null,$PathD = "") {
    $validator = new FormValidator();
    for($i = 0; $i < count($Err); $i++) {
      for($x = 0; $x < count($Err[$i]); $x++) {
@@ -881,11 +902,11 @@ function Clean_Mypost($value) {
     $value = XSS_Remove($value);
 	$value = trim($value);
 	$value = htmlspecialchars($value);
-	if (!get_magic_Quotes_gpc()) {
-	$value = addslashes(strip_tags($value));
-	} else {
-	$value = strip_tags($value);
-	}   
+//	if (!get_magic_Quotes_gpc()) {
+//	$value = addslashes(strip_tags($value));
+//	} else {
+//	$value = strip_tags($value);
+//	}
 
  
     $rep1 = array("'",'"','<','>','«','»',"?","¿",'%','‰');
@@ -893,9 +914,9 @@ function Clean_Mypost($value) {
 
     $value = str_replace($rep1,$rep2,$value);
 
-    if (get_magic_Quotes_gpc()) {
-	$value = stripslashes($value);
-	}
+//    if (get_magic_Quotes_gpc()) {
+//	$value = stripslashes($value);
+//	}
     
     $value = mysqli_real_escape_string($con,$value);
 	return $value;

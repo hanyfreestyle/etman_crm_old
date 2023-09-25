@@ -249,40 +249,44 @@ function NF_PrintSelect_2018($StateType,$Label,$Size,$Name,$catTabel,$req,$catid
             if(isset($Arr['SQL_Line_Send'])){
                 $MySql = $Arr['SQL_Line_Send'] ;
             }
-            $Sql_List = $db->SelArr($MySql);
-            for($i = 0; $i < count($Sql_List); $i++) {
-                if(isset($Arr['OtherAr'])){
-                    $Sql_List[$i]['name'] = $Sql_List[$i][$Arr['OtherAr']] ;
-                }
-                if(isset($Arr['OtherEn'])){
-                    $Sql_List[$i]['name_en'] = $Sql_List[$i][$Arr['OtherEn']] ;
-                }
-                if(isset($Arr['SiteList']) and  $Arr['SiteList'] == '1'){
-                    if($WebSiteLang == 'En' and isset($Sql_List[$i]['name_en']) ){
-                        $Sql_List[$i]['name'] = $Sql_List[$i]['name_en'];
+            $already = $db->H_Total_Count($MySql);
+            if($already > 0 ){
+                $Sql_List = $db->SelArr($MySql);
+                for($i = 0; $i < count($Sql_List); $i++) {
+                    if(isset($Arr['OtherAr'])){
+                        $Sql_List[$i]['name'] = $Sql_List[$i][$Arr['OtherAr']] ;
                     }
-                }else{
-                    if(ADMIN_WEB_LANG == 'En' and isset($Sql_List[$i]['name_en']) ){
-                        $Sql_List[$i]['name'] = $Sql_List[$i]['name_en'];
+                    if(isset($Arr['OtherEn'])){
+                        $Sql_List[$i]['name_en'] = $Sql_List[$i][$Arr['OtherEn']] ;
                     }
-                }
-                if(isset($Arr['SubPrintFilde'])){
-                    $SubPrintFilde = $Sql_List[$i][$Arr['SubPrintFilde']] ;
-                }else{
-                    $SubPrintFilde = "";
-                }
-                if(isset($Arr['Active']) and $Arr['Active'] == '1'){
-                    if( $Sql_List[$i]['state'] == '1' or $_SESSION[$Name] == $Sql_List[$i][$ListPrintIDDD] ){
+                    if(isset($Arr['SiteList']) and  $Arr['SiteList'] == '1'){
+                        if($WebSiteLang == 'En' and isset($Sql_List[$i]['name_en']) ){
+                            $Sql_List[$i]['name'] = $Sql_List[$i]['name_en'];
+                        }
+                    }else{
+                        if(ADMIN_WEB_LANG == 'En' and isset($Sql_List[$i]['name_en']) ){
+                            $Sql_List[$i]['name'] = $Sql_List[$i]['name_en'];
+                        }
+                    }
+                    if(isset($Arr['SubPrintFilde'])){
+                        $SubPrintFilde = $Sql_List[$i][$Arr['SubPrintFilde']] ;
+                    }else{
+                        $SubPrintFilde = "";
+                    }
+                    if(isset($Arr['Active']) and $Arr['Active'] == '1'){
+                        if( $Sql_List[$i]['state'] == '1' or $_SESSION[$Name] == $Sql_List[$i][$ListPrintIDDD] ){
+                            echo '<option value="'.$Sql_List[$i][$ListPrintIDDD].'" ';
+                            if ( $_SESSION[$Name] == $Sql_List[$i][$ListPrintIDDD] ){echo "selected";}
+                            echo '>'.$Sql_List[$i]['name']." ".$SubPrintFilde.'</option>';
+                        }
+                    }else{
                         echo '<option value="'.$Sql_List[$i][$ListPrintIDDD].'" ';
                         if ( $_SESSION[$Name] == $Sql_List[$i][$ListPrintIDDD] ){echo "selected";}
                         echo '>'.$Sql_List[$i]['name']." ".$SubPrintFilde.'</option>';
                     }
-                }else{
-                    echo '<option value="'.$Sql_List[$i][$ListPrintIDDD].'" ';
-                    if ( $_SESSION[$Name] == $Sql_List[$i][$ListPrintIDDD] ){echo "selected";}
-                    echo '>'.$Sql_List[$i]['name']." ".$SubPrintFilde.'</option>';
                 }
             }
+
             echo '</select>';
             echo '</div>';
             break;

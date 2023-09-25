@@ -66,17 +66,11 @@ define("E_VAL_NEELMNT_CHECK_FAILED","Value of %s should not be same as that of %
 **/
 class FormValidator 
 {
-    
-
-   function __construct() {
-      // copy your old constructor function code here
-   }
-   
-	public $validator_array = array();
+	public $validator_array;
     public $error_hash;
-	public $custom_validators = array();
+	public $custom_validators;
 	
-	public function FormValidator()
+	function FormValidator()
 	{
 		$this->validator_array = array();
         $this->error_hash = array();
@@ -94,7 +88,7 @@ class FormValidator
 		$validator_obj->variable_name = $variable;
 		$validator_obj->validator_string = $validator;
 		$validator_obj->error_string = $error;
-		@array_push($this->validator_array,$validator_obj);
+		array_push($this->validator_array,$validator_obj);
 	}
     function GetErrors()
     {
@@ -118,22 +112,19 @@ class FormValidator
 			$form_variables = $_GET;
 		}
 
-        $vcount = @count($this->validator_array);
+        $vcount = count($this->validator_array);
         
 
-        if ($this->validator_array && (gettype($this->validator_array)=='array' || gettype($this->validator_array )=='object')) {
-       		foreach( $this->validator_array as $val_obj)
-    		{
-    			if(!$this->ValidateObject($val_obj,$form_variables,$error_string))
-    			{
-    				$bret = false;
-                    $this->error_hash[$val_obj->variable_name] = $error_string;
-    			}
-    		}
-        }       
+		foreach($this->validator_array as $val_obj)
+		{
+			if(!$this->ValidateObject($val_obj,$form_variables,$error_string))
+			{
+				$bret = false;
+                $this->error_hash[$val_obj->variable_name] = $error_string;
+			}
+		}
 
-
-		if(true == $bret && @count($this->custom_validators) > 0)
+		if(true == $bret && count($this->custom_validators) > 0)
 		{
             foreach( $this->custom_validators as $custom_val)
 			{
@@ -208,7 +199,7 @@ class FormValidator
 		$bret = true;
 		if(isset($input_value) )
 		{
-			$input_length = mb_strlen($input_value, 'UTF-8'); 
+			$input_length = strlen($input_value);
 			if($input_length > $max_len)
 			{
 				$bret=false;
@@ -223,7 +214,7 @@ class FormValidator
 		$bret = true;
 		if(isset($input_value) )
 		{
-			$input_length = mb_strlen($input_value, 'UTF-8');
+			$input_length = strlen($input_value);
 			if($input_length < $min_len)
 			{
 				$bret=false;

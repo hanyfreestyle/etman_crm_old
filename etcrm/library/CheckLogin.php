@@ -220,19 +220,19 @@ function Clean_Mypost_Login($value) {
     $value = XSS_Remove_Login($value);
 
     $value = htmlspecialchars($value);
-    if (!get_magic_Quotes_gpc()) {
-        $value = addslashes(strip_tags($value));
-    } else {
-        $value = strip_tags($value);
-    }
+//    if (!get_magic_Quotes_gpc()) {
+//        $value = addslashes(strip_tags($value));
+//    } else {
+//        $value = strip_tags($value);
+//    }
 
     $rep1 = array("'",'"','<','>','«','»',"?","¿",'%','‰');
     $rep2 = array("&#8217;","&#34",'&#60;','&#62;',"&#171;","&#187;","&#63;","&#63;","&#37;","&#37;");
     $value = str_replace($rep1,$rep2,$value);
 
-    if (get_magic_Quotes_gpc()) {
-        $value = stripslashes($value);
-    }
+//    if (get_magic_Quotes_gpc()) {
+//        $value = stripslashes($value);
+//    }
     $value = mysqli_real_escape_string($con,$value);
     return $value;
 }
